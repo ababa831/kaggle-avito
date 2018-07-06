@@ -14,7 +14,6 @@ FROM
 -- > 約210万行のデータ
 
 
--- EDA
 
 -- Cheking groups and counts of Categorical variables
 -- 0. item_id
