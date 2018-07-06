@@ -12,3 +12,6 @@
 
 - avito_lgbm_w_bi_lstm_gru_to_github.ipynb
 テキストデータをRNN（LSTM＋GRU）する弱学習器とカテゴリカル変数，量的変数から作成した特徴量を組み合わせ，アンサンブル学習(stacking)したもの．
+
+- feature_engineering.sql
+特徴エンジニアリングの大部分は，BigQueryで行った．このファイルは，特徴量作成用のコードをメモ書きしたもの．
