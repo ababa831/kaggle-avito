@@ -86,7 +86,7 @@ SELECT
   region, city, COUNT(1) AS region_city_count
 FROM [<your_project_ID>:avito.train_test]
 GROUP BY region, city
-ORDER BY region_city_count DESC
+ORDER BY region_city_count DESC 
 
 -- 商品に対する地域特性を見るのであれば，region(-city)と商品カテゴリの組み合わせを見ればよさそう．
 SELECT
