@@ -4,121 +4,121 @@ SELECT
   item_id, user_id, region, city, parent_category_name, category_name, param_1, param_2, param_3, title, description, price, item_seq_number, activation_date,
   user_type, image, image_top_1, deal_probability
 FROM
-  `bqtest-114514.avito.train`
+  `<your_project_ID>.avito.train`
 UNION ALL
 SELECT
   item_id, user_id, region, city, parent_category_name, category_name, param_1, param_2, param_3, title, description, price, item_seq_number, activation_date,
   user_type, image, image_top_1, NULL AS deal_probability
 FROM
-  `bqtest-114514.avito.test`
+  `<your_project_ID>.avito.test`
 -- > 約210万行のデータ
 
 
 
 -- Cheking groups and counts of Categorical variables
 -- 0. item_id
-SELECT item_id, count(item_id) as item_id_count FROM [bqtest-114514:avito.train_test] group by item_id
+SELECT item_id, count(item_id) as item_id_count FROM [<your_project_ID>:avito.train_test] group by item_id
 -- > item_idの重複なし．特徴量として捨ててよい
 
 -- 1. user_type
-SELECT user_type, count(user_type) as user_type_count FROM [bqtest-114514:avito.train_test]  group by user_type order by user_type_count
+SELECT user_type, count(user_type) as user_type_count FROM [<your_project_ID>:avito.train_test]  group by user_type order by user_type_count
 -- > [3 categories]　約3/4がPrivate のこり1/4がshop company
 
 -- 2. parent_category_name
-SELECT parent_category_name, COUNT(parent_category_name) AS parent_category_name_count FROM [bqtest-114514:avito.train_test] GROUP BY parent_category_name
+SELECT parent_category_name, COUNT(parent_category_name) AS parent_category_name_count FROM [<your_project_ID>:avito.train_test] GROUP BY parent_category_name
 -- > [9 categories]
 
 -- 3. category_name
-SELECT category_name, COUNT(category_name) AS category_name_count FROM [bqtest-114514:avito.train_test] GROUP BY category_name
+SELECT category_name, COUNT(category_name) AS category_name_count FROM [<your_project_ID>:avito.train_test] GROUP BY category_name
 -- > [47 categories]
 
 -- 4. region
-SELECT region, COUNT(region) AS region_count FROM [bqtest-114514:avito.train_test] GROUP BY region
+SELECT region, COUNT(region) AS region_count FROM [<your_project_ID>:avito.train_test] GROUP BY region
 -- > [28 categories]
 
 -- 5. city
-SELECT city, COUNT(city) AS city_count FROM [bqtest-114514:avito.train_test] GROUP BY city order by city_count DESC
+SELECT city, COUNT(city) AS city_count FROM [<your_project_ID>:avito.train_test] GROUP BY city order by city_count DESC
 -- > [1733 categories] このデータは現実的にone-hot使えない
 
 -- 6. param_1
-SELECT param_1, COUNT(param_1) AS param_1_count FROM [bqtest-114514:avito.train_test] GROUP BY param_1
+SELECT param_1, COUNT(param_1) AS param_1_count FROM [<your_project_ID>:avito.train_test] GROUP BY param_1
 -- > [372 categories]
 
 -- 7. param_2
-SELECT param_2, COUNT(param_2) AS param_2_count FROM [bqtest-114514:avito.train_test] GROUP BY param_2
+SELECT param_2, COUNT(param_2) AS param_2_count FROM [<your_project_ID>:avito.train_test] GROUP BY param_2
 -- > [272 categories? ]　メーカー名とかブランド名とかが書いてある．カテゴリとして扱ってよいのか?
 
 -- 8. param_3
-SELECT param_3, COUNT(param_3) AS param_3_count FROM [bqtest-114514:avito.train_test] GROUP BY param_3
+SELECT param_3, COUNT(param_3) AS param_3_count FROM [<your_project_ID>:avito.train_test] GROUP BY param_3
 -- > [1220 categories?] 車の名前とか，適当な数値とかが入っているからカテゴリ変数ではなさそう．商品名とかの備考記述テキストっぽい　カテゴリといえばカテゴリか・・・
 
 -- 9. item_seq_number
-SELECT item_seq_number, count(1) as item_seq_number_count FROM [bqtest-114514:avito.train_test] group by item_seq_number order by item_seq_number_count desc
+SELECT item_seq_number, count(1) as item_seq_number_count FROM [<your_project_ID>:avito.train_test] group by item_seq_number order by item_seq_number_count desc
 -- > 1から順にパケット送受信があったらランダムに割り振るらしい．正直使いどころがよくわからん（1が多すぎるのでたぶん罠）
 
 -- 10. image_count
-SELECT image, count(1) as image_count FROM [bqtest-114514:avito.train_test] group by image order by image_count desc
+SELECT image, count(1) as image_count FROM [<your_project_ID>:avito.train_test] group by image order by image_count desc
 -- > 画像なし：155197, 画像あり：1856666 - 155197 = 1701469  約92％は画像あり．（のこりの8％くらいなら，画像をGANで生成すればいいのでは？）
 
 -- 10.5 image_count(testデータのみ)
-SELECT image, count(1) as image_count FROM [bqtest-114514:avito.test] group by image order by image_count desc
+SELECT image, count(1) as image_count FROM [<your_project_ID>:avito.test] group by image order by image_count desc
 -- > 画像なし： 42609 約91％は画像あり．　画像の配分は，学習，テストデータともに同じくらい．
 
 
 -- (おまけ)user_id
-SELECT user_id, count(user_id) as user_id_count FROM [bqtest-114514:avito.train_test] group by user_id ORDER BY user_id_count DESC
+SELECT user_id, count(user_id) as user_id_count FROM [<your_project_ID>:avito.train_test] group by user_id ORDER BY user_id_count DESC
 -- > 100万グループ程度．購入ユーザの比率に大きな偏りがある．（買う人はかなり買う．）
 
 
 -- 上位のuser_idがどのuser_typeか調査
-SELECT user_id, user_type, count(user_id) as user_id_count FROM [bqtest-114514:avito.train_test] group by user_id, user_type order by user_id_count desc
+SELECT user_id, user_type, count(user_id) as user_id_count FROM [<your_project_ID>:avito.train_test] group by user_id, user_type order by user_id_count desc
 -- > 上位はほとんどshopかcompany 116位でようやく個人 下位はほとんど個人(だいたい40個以下くらいから買い始める)
 
 -- 1?. 親子，param1-3カテゴリのそれぞれの組み合わせに対するカウント数調査
 SELECT
   parent_category_name, category_name, param_1, param_2, param_3, COUNT(1) AS parent_child_param_1_2_3_count
-FROM [bqtest-114514:avito.train_test]
+FROM [<your_project_ID>:avito.train_test]
 GROUP BY parent_category_name, category_name, param_1, param_2, param_3
 ORDER BY parent_child_param_1_2_3_count DESC
 
 -- 地方-市名(region-city) count
 SELECT
   region, city, COUNT(1) AS region_city_count
-FROM [bqtest-114514:avito.train_test]
+FROM [<your_project_ID>:avito.train_test]
 GROUP BY region, city
 ORDER BY region_city_count DESC
 
 -- 商品に対する地域特性を見るのであれば，region(-city)と商品カテゴリの組み合わせを見ればよさそう．
 SELECT
   region, city, parent_category_name, category_name, param_1, param_2, param_3, COUNT(1) AS region_city_all_category_count
-FROM [bqtest-114514:avito.train_test]
+FROM [<your_project_ID>:avito.train_test]
 GROUP BY region, city, parent_category_name, category_name, param_1, param_2, param_3
 ORDER BY region_city_all_category_count DESC
 
 -- 商品に対するユーザタイプの特性の場合も似たような感じで．
 SELECT
   user_id, parent_category_name, category_name, param_1, param_2, param_3, COUNT(1) AS user_id_all_category_count
-FROM [bqtest-114514:avito.train_test]
+FROM [<your_project_ID>:avito.train_test]
 GROUP BY user_id, parent_category_name, category_name, param_1, param_2, param_3
 ORDER BY user_id_all_category_count DESC
 
 -- ユーザーと地域の関係性
 SELECT
   user_id, region, city, COUNT(1) AS user_id_region_city_count
-FROM [bqtest-114514:avito.train_test]
+FROM [<your_project_ID>:avito.train_test]
 GROUP BY user_id, region, city
 ORDER BY user_id_region_city_count DESC
 
 -- ユーザと地域とカテゴリの特性
 SELECT
   user_id, region, city, parent_category_name, category_name, COUNT(1) AS user_id_region_city_parent_child_category_count
-FROM [bqtest-114514:avito.train_test]
+FROM [<your_project_ID>:avito.train_test]
 GROUP BY user_id, region, city, parent_category_name, category_name
 ORDER BY user_id_region_city_parent_child_category_count DESC
 
 -- user_id と価格の組み合わせカウント数 (user_id絡みはかなり効くっぽい)
 SELECT user_id, price, count(1) as user_id_price_count
-FROM `bqtest-114514.avito.train_test` 
+FROM `<your_project_ID>.avito.train_test` 
 group by user_id, price
 
 -- timediff
@@ -136,7 +136,7 @@ SELECT
   COUNT(1) AS user_id_region_city_parent_child_category_count,
   TIMESTAMP_DIFF(MAX(TIMESTAMP(activation_date)), MIN(TIMESTAMP(activation_date)), DAY) AS diff
 FROM
-  `bqtest-114514.avito.train_test`
+  `<your_project_ID>.avito.train_test`
 GROUP BY
   user_id,
   region,
@@ -154,16 +154,16 @@ ORDER BY
 -- Unique数 
 -- unique 数の調査例 count(1) as cnt == COUNT(parent_category_name)　という意味
 -- 1. 親子カテゴリのユニーク数調査
-SELECT parent_category_name, count(1) as cnt, COUNT(distinct category_name) AS category_name_unique FROM [bqtest-114514:avito.train_test] GROUP BY parent_category_name
+SELECT parent_category_name, count(1) as cnt, COUNT(distinct category_name) AS category_name_unique FROM [<your_project_ID>:avito.train_test] GROUP BY parent_category_name
 -- > 親カテゴリ数，各親カテゴリの総数，各親カテゴリに対して子カテゴリのユニーク数（重複なしのカウント数．つまり子カテゴリの種類数）がどのくらい出るかを示す．
 
 -- 2. 地方-市名のユニーク数調査
-SELECT region, count(1) as region_count, COUNT(distinct city) AS city_unique FROM [bqtest-114514:avito.train_test] GROUP BY region order by region_count desc
+SELECT region, count(1) as region_count, COUNT(distinct city) AS city_unique FROM [<your_project_ID>:avito.train_test] GROUP BY region order by region_count desc
 -- > それぞれの地方にたいして，だいたいまんべんない市で購入されているっぽい．
 
 -- 3. user_idに対する価格のユニーク数　(user_id絡みの変数はGainがでかそう)
 SELECT user_id, count(distinct price) as user_id_price_unique
-FROM `bqtest-114514.avito.train_test` 
+FROM `<your_project_ID>.avito.train_test` 
 group by user_id
 
 
@@ -195,7 +195,7 @@ SELECT
   deal_probability
   
 FROM
-  `bqtest-114514.avito.train_test` AS t
+  `<your_project_ID>.avito.train_test` AS t
 
 LEFT OUTER JOIN
   `avito._all_category_count_diff` AS all_diff
@@ -303,7 +303,7 @@ SELECT
   deal_probability
   
 FROM
-  `bqtest-114514.avito.train_test` AS t
+  `<your_project_ID>.avito.train_test` AS t
 
 LEFT OUTER JOIN
   `avito._all_category_count_diff` AS all_diff
@@ -429,7 +429,7 @@ SELECT
   deal_probability
   
 FROM
-  `bqtest-114514.avito.train_test` AS t
+  `<your_project_ID>.avito.train_test` AS t
 
 LEFT OUTER JOIN
   `avito._all_category_count_diff` AS all_diff
@@ -573,7 +573,7 @@ SELECT
   deal_probability
   
 FROM
-  `bqtest-114514.avito_features._3rd_feature_p1` AS t
+  `<your_project_ID>.avito_features._3rd_feature_p1` AS t
 
 -- ここから追加
 
@@ -827,7 +827,7 @@ SELECT
   deal_probability
   
 FROM
-  `bqtest-114514.avito_features._3rd_feature_p2` AS t
+  `<your_project_ID>.avito_features._3rd_feature_p2` AS t
 
 -- ここから追加
 
@@ -1237,7 +1237,7 @@ ON
 
 -- 元となる特徴量作成用クエリのテンプレ
 --SELECT <variable>, count(1) as cnt, TIMESTAMP_DIFF(MAX(TIMESTAMP(activation_date)), MIN(TIMESTAMP(activation_date)), DAY) as <variable>_minmax_diff 
---FROM `bqtest-114514.avito.train_test` group by <variable>
+--FROM `<your_project_ID>.avito.train_test` group by <variable>
 
 --PART 1
 -- dstination table: _4th_feature_tmp
@@ -1258,7 +1258,7 @@ SELECT
   -- ここまで追加
   
 FROM
-  `bqtest-114514.avito_features._3rd_feature_p3` AS t
+  `<your_project_ID>.avito_features._3rd_feature_p3` AS t
 
 -- ここから追加
 LEFT OUTER JOIN
@@ -1425,7 +1425,7 @@ SELECT
   user_type_minmax_diff,	
   deal_probability
 FROM
-  `bqtest-114514.avito_4th._4th_feature_tmp` 
+  `<your_project_ID>.avito_4th._4th_feature_tmp` 
 
 
 -- 第五段階
@@ -1440,7 +1440,7 @@ SELECT
   TIMESTAMP_DIFF(MAX(TIMESTAMP(activation_date)), MIN(TIMESTAMP(activation_date)), DAY) AS minmax_diff
   
 FROM
-  `bqtest-114514.avito.train_test`
+  `<your_project_ID>.avito.train_test`
 GROUP BY
   <feature_1>,
   <feature_2>
@@ -1618,7 +1618,7 @@ SELECT
 
   
 FROM
-  `bqtest-114514.avito_4th._4th_feature_wo_fillna_minus` AS t
+  `<your_project_ID>.avito_4th._4th_feature_wo_fillna_minus` AS t
 
 -- ここから追加
 LEFT OUTER JOIN
@@ -2338,7 +2338,7 @@ SELECT
   t.*,
   CONCAT(tt.title, " ", tt.description) AS title_desc
 FROM
-  `bqtest-114514.avito_other_features.train_test_text_uq_rate` AS t
+  `<your_project_ID>.avito_other_features.train_test_text_uq_rate` AS t
 LEFT OUTER JOIN
   `avito.train_test` AS tt
 ON
@@ -2356,7 +2356,7 @@ SELECT
   EXTRACT(DAYOFWEEK FROM TIMESTAMP(activation_date)) AS dayofweek,
   EXTRACT(DAY FROM TIMESTAMP(activation_date)) AS day
 FROM
-  `bqtest-114514.avito.train_test`
+  `<your_project_ID>.avito.train_test`
 
 
 --
@@ -2366,7 +2366,7 @@ SELECT
   t.dayofweek,
   t.day
 FROM
-  `bqtest-114514.avito_6th._month_week_dayofweek` as t
+  `<your_project_ID>.avito_6th._month_week_dayofweek` as t
 LEFT OUTER JOIN
 `avito_5th._5th_feature` as _5
 ON t.item_id = _5.item_id
@@ -2403,7 +2403,7 @@ SELECT
   STDDEV(t.price) OVER(PARTITION BY CAST(t.day AS INT64)) AS std_price_by_day,
   STDDEV(t.image_top_1) OVER(PARTITION BY CAST(t.day AS INT64)) AS std_image_top_1_by_day
 FROM
-  `bqtest-114514.avito_6th._6th_feature` AS t
+  `<your_project_ID>.avito_6th._6th_feature` AS t
 
 ----- 2nd 
 SELECT
@@ -2412,7 +2412,7 @@ SELECT
   IFNULL(STDDEV(t.dayofweek) OVER(PARTITION BY t.user_id), -1) AS std_dayofweek_by_user_id,
   IFNULL(STDDEV(t.day) OVER(PARTITION BY t.user_id), -1) AS std_day_by_user_id
 FROM
-  `bqtest-114514.avito_6th._6th_feature` AS t
+  `<your_project_ID>.avito_6th._6th_feature` AS t
 
 
 ---8th
@@ -2423,7 +2423,7 @@ SELECT
   t.city,
   rcp.population
 FROM
-  `bqtest-114514.avito.train_test` AS t
+  `<your_project_ID>.avito.train_test` AS t
 INNER JOIN
   `avito_external.region_city_population` AS rcp
 ON
@@ -2436,7 +2436,7 @@ SELECT
   t.city,
   cp.population
 FROM
-  `bqtest-114514.avito.train_test` AS t
+  `<your_project_ID>.avito.train_test` AS t
 INNER JOIN
   `avito_external.city_population` AS cp
 ON
@@ -2447,9 +2447,9 @@ SELECT
   t.*,
   tip.population
 FROM
-  `bqtest-114514.avito_6th._6th_feature` AS t
+  `<your_project_ID>.avito_6th._6th_feature` AS t
 LEFT OUTER JOIN
-  `bqtest-114514.avito_8th.__tmp_item_id_population` AS tip
+  `<your_project_ID>.avito_8th.__tmp_item_id_population` AS tip
 ON
   t.item_id = tip.item_id
 
@@ -2461,8 +2461,8 @@ SELECT
   rm.GDP_PC_PPP,
   rm.HDI
 FROM
-  `bqtest-114514.avito_8th._8th_feature` AS t
+  `<your_project_ID>.avito_8th._8th_feature` AS t
 LEFT OUTER JOIN
-  `bqtest-114514.avito_external.region_macro` AS rm
+  `<your_project_ID>.avito_external.region_macro` AS rm
 ON
   t.region = rm.region
